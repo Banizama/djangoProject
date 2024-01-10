@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="static/styles/style.css" rel="stylesheet">
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            <div class="form_error">{{ form.non_field_errors }}</div>
+            {% for i in form %}
+                <p><label for="{{ i.id_for_label }}">{{ i.label }}:</label>{{ i }}</p>
+                <div class="form_error">{{ i.errors }}</div>
+            {% endfor %}
+        </table>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
