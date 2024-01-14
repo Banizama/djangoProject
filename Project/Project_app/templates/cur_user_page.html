@@ -1,4 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
     {{ request.user.username }}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        <button>Upload</button>
+    </form>
+    {% for i in posts %}
+        <a href="post/{{ i.id }}"><img src="{{ i.img.url }}" height="50px" width="50px"></a>
+    {% endfor %}
+
 {% endblock %}
