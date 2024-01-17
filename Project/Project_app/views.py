@@ -5,8 +5,8 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView
-from .forms import RegUserForm, PostForm
-from .models import User, Post
+from .forms import RegUserForm, PostForm, CommentForm
+from .models import User, Post, Comment, Follow
 from django.contrib import messages
 
 
@@ -24,6 +24,13 @@ class RegPage(CreateView):
     success_url = reverse_lazy('login')
     form_class = RegUserForm
 
+    def Post(self):
+        follow = Follow(user=1)
+        follow.save()
+        return redirect('/login')
+
+
+
 
 class LoginPage(LoginView):
     template_name = 'login_page.html'
@@ -39,10 +46,24 @@ class PostPage(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        posts = Post.objects.filter(user=self.kwargs['id'])
-        print(posts)
-        context['posts'] = posts
-        print(context)
+        post = Post.objects.get(id=self.kwargs['id'])
+        comment = Comment.objects.filter(post=post)
+        context['comments'] = comment
+        context['form'] = CommentForm()
+        context['post'] = post
+        return context
+
+    def post(self, request, **kwargs):
+        post = Post.objects.get(id=self.kwargs['id'])
+        if request.method == 'POST':
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = Comment(text=form.cleaned_data['text'], user=request.user, post=post)
+                comment.save()
+            return redirect(f'/post/{post.id}')
+        else:
+            form = CommentForm()
+        return render(request, 'post_page.html', {'form': form})
 
 
 # @login_required
@@ -56,7 +77,6 @@ class PostPage(TemplateView):
 
 @login_required
 def cur_user_page(request):
-    print(request.user.id)
     cur_user_post = Post.objects.filter(user=request.user.id)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
@@ -65,15 +85,26 @@ def cur_user_page(request):
             description = form.cleaned_data['description']
             post = Post(img=img, description=description, user=request.user)
             post.save()
-            return redirect('/')
+            return redirect('/cur_user_page')
     else:
         form = PostForm()
-    return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post})
+    return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post,})
+                                                                # 'followers': len(follow.followers.all()), 'following': len(follow.followers.all())})
 
 
 def logout_user(request):
     logout(request)
     return redirect('home')
+
+
+class UserPage(TemplateView):
+    template_name = 'user_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = User.objects.get(id=self.kwargs['id'])
+        context['user'] = user
+        return context
 
 
 
