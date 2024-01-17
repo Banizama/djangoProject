@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
-    {% for i in posts %}
-        <img src="{{ i.img.url }}" height="200px" width="100px">
-        <p>{{ i.description }}</p>
-    {% endfor %}
+        <img src="{{ post.img.url }}" height="200px" width="100px">
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit">Comment</button>
+        </form>
+        {% for i in comments %}
+            {{ i.text }}<br>
+        {% endfor %}
 {% endblock %}
