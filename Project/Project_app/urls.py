@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-
 from .views import HomePage, RegPage, LoginPage, cur_user_page, logout_user, PostPage
 from django.urls import path
 
