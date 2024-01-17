@@ -15,6 +15,12 @@ class User(AbstractUser):
     pass
 
 
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    following = models.ManyToManyField(User, related_name='following', default=None)
+    followers = models.ManyToManyField(User, related_name='followers', default=None)
+
+
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.CharField(max_length=200)
@@ -24,7 +30,6 @@ class Post(models.Model):
 class Comment(models.Model):
     text = models.CharField(max_length=300)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
 
-class Followers(models.Model):
-    pass
