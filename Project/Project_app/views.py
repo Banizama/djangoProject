@@ -4,19 +4,19 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, FormView
+from django.views.generic import TemplateView, CreateView, FormView, ListView
 from .forms import RegUserForm, PostForm, CommentForm
 from .models import User, Post, Comment, Follow
 from django.contrib import messages
 
 
-class HomePage(TemplateView):
-    template_name = 'home_page.html'
-
-
-# def register(request):
-#     form = RegUserForm()
-#     return render(request, 'reg_page.html', {'form': form})
+def home_page(request):
+    search_query = request.GET.get('search', None)
+    if search_query:
+        users = User.objects.filter(username__icontains=search_query)
+    else:
+        users = User.objects.all()
+    return render(request, 'home_page.html', context={'users': users})
 
 
 class RegPage(CreateView):
@@ -24,12 +24,18 @@ class RegPage(CreateView):
     success_url = reverse_lazy('login')
     form_class = RegUserForm
 
-    def Post(self):
-        follow = Follow(user=1)
-        follow.save()
-        return redirect('/login')
 
-
+# class SearchView(ListView):
+#     template_name = 'base.html'
+#
+#     def get_queryset(self):
+#         print(User.objects.filter(username__icontains=self.request.GET.get('search')))
+#         return User.objects.filter(username__icontains=self.request.GET.get('search'))
+#
+#     def get_context_data(self, object_list=None, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['search'] = self.request.GET.get('search')
+#         return context
 
 
 class LoginPage(LoginView):
