@@ -19,10 +19,24 @@ def home_page(request):
     return render(request, 'home_page.html', context={'users': users})
 
 
-class RegPage(CreateView):
-    template_name = 'reg_page.html'
-    success_url = reverse_lazy('login')
-    form_class = RegUserForm
+# class RegPage(CreateView):
+#     template_name = 'reg_page.html'
+#     success_url = reverse_lazy('login')
+#     form_class = RegUserForm
+
+def registration(request):
+    if request.method == 'POST':
+        form = RegUserForm(request.POST)
+        if form.is_valid():
+            user =form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])
+            user.save()
+            follow = Follow(user=user)
+            follow.save()
+            return render(request, 'login_page.html')
+    else:
+        form = RegUserForm()
+    return render(request, 'reg_page.html', context={'form': form})
 
 
 # class SearchView(ListView):
@@ -36,6 +50,13 @@ class RegPage(CreateView):
 #         context = super().get_context_data(**kwargs)
 #         context['search'] = self.request.GET.get('search')
 #         return context
+
+def like(request):
+
+    return render(request, 'post_page.html')
+
+
+
 
 
 class LoginPage(LoginView):
@@ -57,6 +78,7 @@ class PostPage(TemplateView):
         context['comments'] = comment
         context['form'] = CommentForm()
         context['post'] = post
+        # print(post.like)
         return context
 
     def post(self, request, **kwargs):
