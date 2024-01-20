@@ -22,9 +22,10 @@ class Follow(models.Model):
 
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     description = models.CharField(max_length=200)
     img = models.ImageField(upload_to='images')
+    like = models.ManyToManyField(User, null=True)
 
 
 class Comment(models.Model):
