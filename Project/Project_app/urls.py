@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from .views import home_page, registration, LoginPage, cur_user_page, logout_user, PostPage, UserPage, like
+from .views import home_page, registration, LoginPage, cur_user_page, logout_user, PostPage, UserPage, like, subscribe
 from django.urls import path
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('post/<int:id>/', PostPage.as_view(), name='post_page'),
     path('user/<int:id>', login_required(UserPage.as_view()), name='user_page'),
     path('post/<int:id>/like', login_required(like), name='like'),
+    path('user/<int:id>/subscribe', subscribe, name='subscribe')
 ]
