@@ -40,11 +40,6 @@ def registration(request):
     return render(request, 'reg_page.html', context={'form': form})
 
 
-def like(request):
-
-    return render(request, 'post_page.html')
-
-
 class LoginPage(LoginView):
     template_name = 'login_page.html'
     success_url = reverse_lazy('home')
@@ -64,6 +59,7 @@ class PostPage(TemplateView):
         context['comments'] = comment
         context['form'] = CommentForm()
         context['post'] = post
+        context['likes'] = len(post.like.all())
         # print(post.like)
         return context
 
@@ -71,14 +67,22 @@ class PostPage(TemplateView):
         post = Post.objects.get(id=self.kwargs['id'])
         form = CommentForm(request.POST)
         if form:
-
+            print('Comment')
             if form.is_valid():
                 comment = Comment(text=form.cleaned_data['text'], user=request.user, post=post)
                 comment.save()
             return redirect(f'/post/{post.id}')
-
-
-
+        else:
+            print('Like')
+            data = request.POST
+            if request.user not in post.like.all():
+                post.like.add(request.user)
+                post.save()
+                return JsonResponse({'like': 'Liked', 'likes': len(post.like.all())}, safe=False)
+            else:
+                post.like.remove(request.user)
+                post.save()
+                return JsonResponse({'like': 'Like', 'likes': len(post.like.all())}, safe=False)
 
 
 @login_required
@@ -117,7 +121,7 @@ class UserPage(TemplateView):
         return context
 
     def post(self, request, **kwargs):
-        data = request.POST
+        # data = request.POST
         user = User.objects.get(id=self.kwargs['id'])
         follow = Follow.objects.get(user=user)
         cur_follow = Follow.objects.get(user=self.request.user)
