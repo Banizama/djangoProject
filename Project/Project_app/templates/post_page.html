@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
         <img src="{{ post.img.url }}" height="200px" width="100px">
+        {{ post.description }}<br>
+        {% csrf_token %}
+        <button id="like_btn" data-url="/post/{{ post.id }}/">Like</button><span> Likes: </span><span id="likes">{{ likes }}</span>
         <hr>
         <form method="post">
             {% csrf_token %}
             {{ form }}
+
             <button type="submit">Comment</button>
         </form>
         {% for i in comments %}
