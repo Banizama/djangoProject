@@ -2,6 +2,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView
@@ -39,24 +40,9 @@ def registration(request):
     return render(request, 'reg_page.html', context={'form': form})
 
 
-# class SearchView(ListView):
-#     template_name = 'base.html'
-#
-#     def get_queryset(self):
-#         print(User.objects.filter(username__icontains=self.request.GET.get('search')))
-#         return User.objects.filter(username__icontains=self.request.GET.get('search'))
-#
-#     def get_context_data(self, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['search'] = self.request.GET.get('search')
-#         return context
-
 def like(request):
 
     return render(request, 'post_page.html')
-
-
-
 
 
 class LoginPage(LoginView):
@@ -83,24 +69,16 @@ class PostPage(TemplateView):
 
     def post(self, request, **kwargs):
         post = Post.objects.get(id=self.kwargs['id'])
-        if request.method == 'POST':
-            form = CommentForm(request.POST)
+        form = CommentForm(request.POST)
+        if form:
+
             if form.is_valid():
                 comment = Comment(text=form.cleaned_data['text'], user=request.user, post=post)
                 comment.save()
             return redirect(f'/post/{post.id}')
-        else:
-            form = CommentForm()
-        return render(request, 'post_page.html', {'form': form})
 
 
-# @login_required
-# class CurUserPage(TemplateView):
-#     template_name = 'cur_user_page.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['user'] = self.request
+
 
 
 @login_required
@@ -117,7 +95,6 @@ def cur_user_page(request):
     else:
         form = PostForm()
     return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post,})
-                                                                # 'followers': len(follow.followers.all()), 'following': len(follow.followers.all())})
 
 
 def logout_user(request):
@@ -131,8 +108,33 @@ class UserPage(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = User.objects.get(id=self.kwargs['id'])
+        follow = Follow.objects.filter(user=user)
+        for i in follow:
+            context['following'] = len(i.following.all())
+            context['followers'] = len(i.followers.all())
         context['user'] = user
+        context['cur_user'] = self.request.user
         return context
+
+    def post(self, request, **kwargs):
+        data = request.POST
+        user = User.objects.get(id=self.kwargs['id'])
+        follow = Follow.objects.get(user=user)
+        cur_follow = Follow.objects.get(user=self.request.user)
+        if request.user not in follow.followers.all():
+            follow.followers.add(request.user)
+            follow.save()
+            cur_follow.following.add(user)
+            cur_follow.save()
+            return JsonResponse({'follow': 'Followed', 'followers': len(follow.followers.all())}, safe=False)
+        else:
+            follow.followers.remove(request.user)
+            follow.save()
+            cur_follow.following.remove(user)
+            cur_follow.save()
+            return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
+
+
 
 
 
