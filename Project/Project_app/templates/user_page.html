@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
         {{ user.username }}
-        <img src="{{ user.img.url }}" height="50px" width="50px">
-
+        <img src="{{ user.img.url }}" height="50px" width="50px"><br>
+        <span id="followers">Followers: {{ followers }}</span><br>
+        <span id='following'>Following: {{ following }}</span><br>
+        {% csrf_token %}
+        {% if request.user in followers %}
+                <button id="subscribe_btn" data-url="/user/{{ user.id }}/">Followed</button>
+        {% else %}
+                <button id="subscribe_btn" data-url="/user/{{ user.id }}/">Follow</button>
+        {% endif %}
 {% endblock %}
