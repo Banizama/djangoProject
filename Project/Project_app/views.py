@@ -88,6 +88,7 @@ class PostPage(TemplateView):
 @login_required
 def cur_user_page(request):
     cur_user_post = Post.objects.filter(user=request.user.id)
+    follow = Follow.objects.get(user=request.user)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -98,7 +99,11 @@ def cur_user_page(request):
             return redirect('/cur_user_page')
     else:
         form = PostForm()
-    return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post,})
+    return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post,
+                                                  'followers': len(follow.followers.all()),
+                                                  'following': len(follow.following.all()),
+                                                  'len_posts': len(cur_user_post)
+                                                  })
 
 
 def logout_user(request):
