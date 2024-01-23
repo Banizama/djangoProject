@@ -60,13 +60,16 @@ class PostPage(TemplateView):
         context['form'] = CommentForm()
         context['post'] = post
         context['likes'] = len(post.like.all())
-        # print(post.like)
+        context['just_likes'] = post.like.all()
+        context['cur_user'] = self.request.user
         return context
 
     def post(self, request, **kwargs):
+        data = request.POST
+        print(data)
         post = Post.objects.get(id=self.kwargs['id'])
         form = CommentForm(request.POST)
-        if form:
+        if data['like_id']:
             print('Comment')
             if form.is_valid():
                 comment = Comment(text=form.cleaned_data['text'], user=request.user, post=post)
@@ -74,7 +77,7 @@ class PostPage(TemplateView):
             return redirect(f'/post/{post.id}')
         else:
             print('Like')
-            data = request.POST
+
             if request.user not in post.like.all():
                 post.like.add(request.user)
                 post.save()
