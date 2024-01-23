@@ -9,7 +9,7 @@
         <button>Upload</button>
     </form>
     {% for i in posts %}
-        <a href="post/{{ i.id }}"><img src="{{ i.img.url }}" height="50px" width="50px"></a>
+        <a href="/post/{{ i.id }}"><img src="{{ i.img.url }}" height="50px" width="50px"></a>
     {% endfor %}
 
 {% endblock %}
