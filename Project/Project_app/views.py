@@ -121,6 +121,7 @@ class UserPage(TemplateView):
         for i in follow:
             context['following'] = len(i.following.all())
             context['followers'] = len(i.followers.all())
+            context['just_followers'] = i.followers.all()
         context['user'] = user
         context['cur_user'] = self.request.user
         return context
