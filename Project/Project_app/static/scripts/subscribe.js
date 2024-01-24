@@ -5,7 +5,8 @@ function subscribe(){
             'async': true,
             'dataType': 'json',
             'data': {
-                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+                    'sub_id': $('#subscribe_btn').val()
                     },
                     'success': function(data){
                         document.getElementById('subscribe_btn').innerHTML = data['follow'];
