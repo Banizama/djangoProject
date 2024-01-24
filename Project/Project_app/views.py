@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView
 from .forms import RegUserForm, PostForm, CommentForm
-from .models import User, Post, Comment, Follow
+from .models import User, Post, Comment, Follow, Chat
 from django.contrib import messages
 
 
@@ -130,22 +130,30 @@ class UserPage(TemplateView):
         return context
 
     def post(self, request, **kwargs):
-        # data = request.POST
+        data = request.POST
+        print(data)
         user = User.objects.get(id=self.kwargs['id'])
         follow = Follow.objects.get(user=user)
         cur_follow = Follow.objects.get(user=self.request.user)
+        # if data['id_sub']:
         if request.user not in follow.followers.all():
-            follow.followers.add(request.user)
-            follow.save()
-            cur_follow.following.add(user)
-            cur_follow.save()
-            return JsonResponse({'follow': 'Followed', 'followers': len(follow.followers.all())}, safe=False)
+
+                follow.followers.add(request.user)
+                follow.save()
+                cur_follow.following.add(user)
+                cur_follow.save()
+                return JsonResponse({'follow': 'Followed', 'followers': len(follow.followers.all())}, safe=False)
         else:
-            follow.followers.remove(request.user)
-            follow.save()
-            cur_follow.following.remove(user)
-            cur_follow.save()
-            return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
+                follow.followers.remove(request.user)
+                follow.save()
+                cur_follow.following.remove(user)
+                cur_follow.save()
+                return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
+        # else:
+        #     if (self.request.user in Chat.user1 or self.request.user in Chat.user2) and (user in Chat.user1 or user in Chat.user2):
+        #         return redirect(f'/')
+        #     else:
+        #         pass
 
 
 
