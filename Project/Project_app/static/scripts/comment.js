@@ -9,7 +9,7 @@ function comment(){
                     'text': $('#comment').val()
                     },
                     'success': function(data){
-                        document.getElementById('comments').innerHTML += data['resp'];
+                        document.getElementById('comments').innerHTML += data;
                     }
             })
         })
