@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView, RedirectView
 from .forms import RegUserForm, PostForm, CommentForm
-from .models import User, Post, Comment, Follow, Chat
+from .models import User, Post, Comment, Follow
 from django.contrib import messages
 
 
@@ -21,10 +21,6 @@ def home_page(request):
     return render(request, 'home_page.html', context={'users': users})
 
 
-# class RegPage(CreateView):
-#     template_name = 'reg_page.html'
-#     success_url = reverse_lazy('login')
-#     form_class = RegUserForm
 
 def registration(request):
     if request.method == 'POST':
@@ -84,6 +80,7 @@ class PostPage(TemplateView):
                 return JsonResponse({'like': 'Like', 'likes': len(post.like.all())}, safe=False)
         else:
             print('Comment')
+            print(data)
             comment = Comment(text=form.data['text'], user=request.user, post=post)
             comment.save()
             resp = render_to_string('resp.html', {'comment': comment})
@@ -148,6 +145,54 @@ class UserPage(TemplateView):
             return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
 
 
+# class StartChatView(TemplateView):
+#     template_name = 'chat.html'
+#
+#     def get(self, request, **kwargs):
+#         print(self.kwargs['id'])
+#         chat = Chat.objects.get(user1=User.objects.get(id=self.kwargs['id']), user2=self.request.user)
+#         if not chat:
+#             chat = Chat.objects.get(user2=User.objects.get(id=self.kwargs['id']), user1=self.request.user)
+#             if not chat:
+#                 chat = Chat(user1=self.request.user, user2=User.objects.get(id=self.kwargs['id']))
+#                 chat.save()
+#             else:
+#                 return chat
+#         else:
+#             return chat
+#         return redirect(f'/chat/{chat.id}')
 
+
+# class ChatView(TemplateView):
+#     template_name = 'chat.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         chat = Chat.objects.get(id=self.kwargs['id'])
+#         cur_user = self.request.user
+#         # if not chat or (chat.user1 != cur_user and chat.user2 != cur_user):
+#         #     return redirect('/')
+#
+#         talker = chat.user2 if chat.user1 == cur_user else chat.user1
+#         # context['title'] = f'Chat with {talker}'
+#         context['talker'] = talker
+#         context['cur_user'] = cur_user
+#         context['chat'] = chat
+#         context['messages'] = chat.messages.filter(chat=chat.id)
+#         context['form'] = MessageForm()
+#         return context
+#
+#     def post(self, request, **kwargs):
+#         data = request.POST
+#         form = MessageForm(request.POST)
+#         if form.is_valid():
+#             chat = Chat.objects.get(id=kwargs['id'])
+#             message = Message(text=data['text'], user=self.request.user)
+#             chat.messages.add(message)
+#             chat.save()
+#             response = message.text
+#         else:
+#             response = 'ERROR'
+#         return JsonResponse(response, safe=False)
 
 
