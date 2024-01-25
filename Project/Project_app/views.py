@@ -72,7 +72,7 @@ class PostPage(TemplateView):
         print(data)
         post = Post.objects.get(id=self.kwargs['id'])
         form = CommentForm(request.POST)
-        if data['like_id']:
+        if 'like_id' in data.keys():
             print('Like')
             if request.user not in post.like.all():
                 post.like.add(request.user)
@@ -84,11 +84,10 @@ class PostPage(TemplateView):
                 return JsonResponse({'like': 'Like', 'likes': len(post.like.all())}, safe=False)
         else:
             print('Comment')
-            if form.is_valid():
-                comment = Comment(text=form.cleaned_data['text'], user=request.user, post=post)
-                comment.save()
-            return redirect(f'/post/{post.id}')
-
+            comment = Comment(text=form.data['text'], user=request.user, post=post)
+            comment.save()
+            resp = render_to_string('resp.html', {'comment': comment})
+            return JsonResponse(resp, safe=False)
 
 @login_required
 def cur_user_page(request):
@@ -147,6 +146,8 @@ class UserPage(TemplateView):
             cur_follow.following.remove(user)
             cur_follow.save()
             return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
+
+
 
 
 
