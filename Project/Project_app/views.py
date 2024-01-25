@@ -4,8 +4,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, FormView, ListView
+from django.views.generic import TemplateView, CreateView, FormView, ListView, RedirectView
 from .forms import RegUserForm, PostForm, CommentForm
 from .models import User, Post, Comment, Follow, Chat
 from django.contrib import messages
@@ -53,6 +54,8 @@ class PostPage(TemplateView):
     template_name = 'post_page.html'
 
     def get_context_data(self, **kwargs):
+        data = self.request.POST
+        print(data)
         context = super().get_context_data(**kwargs)
         post = Post.objects.get(id=self.kwargs['id'])
         comment = Comment.objects.filter(post=post)
@@ -70,14 +73,7 @@ class PostPage(TemplateView):
         post = Post.objects.get(id=self.kwargs['id'])
         form = CommentForm(request.POST)
         if data['like_id']:
-            print('Comment')
-            if form.is_valid():
-                comment = Comment(text=form.cleaned_data['text'], user=request.user, post=post)
-                comment.save()
-            return redirect(f'/post/{post.id}')
-        else:
             print('Like')
-
             if request.user not in post.like.all():
                 post.like.add(request.user)
                 post.save()
@@ -86,6 +82,12 @@ class PostPage(TemplateView):
                 post.like.remove(request.user)
                 post.save()
                 return JsonResponse({'like': 'Like', 'likes': len(post.like.all())}, safe=False)
+        else:
+            print('Comment')
+            if form.is_valid():
+                comment = Comment(text=form.cleaned_data['text'], user=request.user, post=post)
+                comment.save()
+            return redirect(f'/post/{post.id}')
 
 
 @login_required
@@ -130,33 +132,21 @@ class UserPage(TemplateView):
         return context
 
     def post(self, request, **kwargs):
-        data = request.POST
-        print(data)
         user = User.objects.get(id=self.kwargs['id'])
         follow = Follow.objects.get(user=user)
         cur_follow = Follow.objects.get(user=self.request.user)
-        # if data['id_sub']:
         if request.user not in follow.followers.all():
-
-                follow.followers.add(request.user)
-                follow.save()
-                cur_follow.following.add(user)
-                cur_follow.save()
-                return JsonResponse({'follow': 'Followed', 'followers': len(follow.followers.all())}, safe=False)
+            follow.followers.add(request.user)
+            follow.save()
+            cur_follow.following.add(user)
+            cur_follow.save()
+            return JsonResponse({'follow': 'Followed', 'followers': len(follow.followers.all())}, safe=False)
         else:
-                follow.followers.remove(request.user)
-                follow.save()
-                cur_follow.following.remove(user)
-                cur_follow.save()
-                return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
-        # else:
-        #     if (self.request.user in Chat.user1 or self.request.user in Chat.user2) and (user in Chat.user1 or user in Chat.user2):
-        #         return redirect(f'/')
-        #     else:
-        #         pass
-
-
-
+            follow.followers.remove(request.user)
+            follow.save()
+            cur_follow.following.remove(user)
+            cur_follow.save()
+            return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
 
 
 
