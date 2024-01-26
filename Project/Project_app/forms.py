@@ -16,7 +16,7 @@ class LoginForm(AuthenticationForm):
 
         self.fields['username'].widget.attrs['class'] = 'input'
         self.fields['username'].widget.attrs['placeholder'] = 'Username'
-        self.fields['password'].widget.attrs['class'] = 'input-password'
+        self.fields['password'].widget.attrs['class'] = 'input'
         self.fields['password'].widget.attrs['placeholder'] = 'Password'
 
 class RegUserForm(UserCreationForm):
@@ -40,9 +40,9 @@ class RegUserForm(UserCreationForm):
         self.fields['username'].widget.attrs['placeholder'] = 'Username'
         self.fields['email'].widget.attrs['class'] = 'input'
         self.fields['email'].widget.attrs['placeholder'] = 'Email'
-        self.fields['password1'].widget.attrs['class'] = 'input-password1'
+        self.fields['password1'].widget.attrs['class'] = 'input'
         self.fields['password1'].widget.attrs['placeholder'] = 'Password'
-        self.fields['password2'].widget.attrs['class'] = 'input-password2'
+        self.fields['password2'].widget.attrs['class'] = 'input'
         self.fields['password2'].widget.attrs['placeholder'] = 'Repeat password'
 
     def clean_password2(self):
