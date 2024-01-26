@@ -1,10 +1,12 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
 from .models import User, Post, Comment
 
 
 class LoginForm(AuthenticationForm):
+
+
     class Meta:
         model = get_user_model()
         fields = ('username', 'password')
@@ -19,31 +21,23 @@ class LoginForm(AuthenticationForm):
         self.fields['password'].widget.attrs['class'] = 'input'
         self.fields['password'].widget.attrs['placeholder'] = 'Password'
 
+
 class RegUserForm(UserCreationForm):
-    username = forms.CharField(help_text='')
-    email = forms.CharField(help_text='')
-    password1 = forms.PasswordInput()
-    password2 = forms.PasswordInput()
+
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'input', 'type':'text',  'placeholder': 'Password'}),
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'input', 'type':'text',  'placeholder': 'Confirm password'}),
+    )
 
     class Meta:
-        model = get_user_model()
-        fields = ('username', 'email', 'password1', 'password2')
-        widgets = {'username': forms.TextInput(attrs={'id': 'username'}),
-                   'email': forms.EmailInput(attrs={'id': 'email'}),
-                   'password1': forms.PasswordInput(attrs={'id': 'password1'}),
-                   'password2': forms.PasswordInput(attrs={'id': 'password2'})}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['username'].widget.attrs['class'] = 'input'
-        self.fields['username'].widget.attrs['placeholder'] = 'Username'
-        self.fields['email'].widget.attrs['class'] = 'input'
-        self.fields['email'].widget.attrs['placeholder'] = 'Email'
-        self.fields['password1'].widget.attrs['class'] = 'input'
-        self.fields['password1'].widget.attrs['placeholder'] = 'Password'
-        self.fields['password2'].widget.attrs['class'] = 'input'
-        self.fields['password2'].widget.attrs['placeholder'] = 'Repeat password'
+        model = User
+        fields = ['username', 'email']
+        widgets={
+            'username': forms.TextInput(attrs={'class': 'input', 'type': 'text',  'placeholder': 'Username'}),
+            'email':forms.EmailInput(attrs={'class': 'input', 'type': 'text',  'placeholder': 'Email'}),
+        }
 
     def clean_password2(self):
         cd = self.cleaned_data
