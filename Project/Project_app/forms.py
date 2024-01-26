@@ -4,8 +4,20 @@ from django import forms
 from .models import User, Post, Comment
 
 
+class LoginForm(AuthenticationForm):
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'password')
+        widgets = {'username': forms.TextInput(attrs={'id': 'username'}),
+                   'password1': forms.PasswordInput(attrs={'id': 'password1'})}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.fields['username'].widget.attrs['class'] = 'input'
+        self.fields['username'].widget.attrs['placeholder'] = 'Username'
+        self.fields['password'].widget.attrs['class'] = 'input-password'
+        self.fields['password'].widget.attrs['placeholder'] = 'Password'
 
 class RegUserForm(UserCreationForm):
     username = forms.CharField(help_text='')
