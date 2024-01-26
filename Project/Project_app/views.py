@@ -1,13 +1,12 @@
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView, RedirectView
-from .forms import RegUserForm, PostForm, CommentForm
+from .forms import RegUserForm, PostForm, CommentForm, LoginForm
 from .models import User, Post, Comment, Follow
 from django.contrib import messages
 
@@ -18,8 +17,7 @@ def home_page(request):
         users = User.objects.filter(username__icontains=search_query)
     else:
         users = User.objects.all()
-    return render(request, 'home_page.html', context={'users': users})
-
+    return render(request, 'home.html', context={'users': users})
 
 
 def registration(request):
@@ -40,7 +38,7 @@ def registration(request):
 class LoginPage(LoginView):
     template_name = 'login_page.html'
     success_url = reverse_lazy('home')
-    form_class = AuthenticationForm
+    form_class = LoginForm
 
     def get_success_url(self):
         return reverse_lazy('cur_user_page')
