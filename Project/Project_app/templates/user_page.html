@@ -1,14 +1,64 @@
 {% extends 'base.html' %}
 {% block content %}
-        {{ user.username }}
-        <img src="{{ user.img.url }}" height="50px" width="50px"><br>
-        Followers: <span id="followers">{{ followers }}</span><br>
-        Following: <span id='following'>{{ following }}</span><br>
-        {% csrf_token %}
-        {% if cur_user in just_followers %}
-                <button id="subscribe_btn" data-url="/user/{{ user.id }}/">Followed</button>
+    <style>
+        .btn {
+             border: none;
+             color: #fff;
+             background-color: #8BC6EC;
+             background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
+             border-radius: 20px;
+             background-size: 100% auto;
+             font-family: inherit;
+             font-size: 20px;
+             padding: 8px;
+        }
+
+            .btn:hover {
+             background-position: right center;
+             background-size: 200% auto;
+             -webkit-animation: pulse 2s infinite;
+             animation: pulse512 1.5s infinite;
+        }
+
+            @keyframes pulse512 {
+             0% {
+              box-shadow: 0 0 0 0 #05bada66;
+        }
+
+             70% {
+              box-shadow: 0 0 0 10px rgb(218 103 68 / 0%);
+        }
+
+             100% {
+              box-shadow: 0 0 0 0 rgb(218 103 68 / 0%);
+             }
+        }
+    </style>
+    <div class="justify-items-start d-flex p-1">
+        <div >
+            <img src="/media/avatars/default_user_img.jpg" height="100px" width="100px" style="border-radius: 50%; border-color: grey; border-style: solid;">
+            {% csrf_token %}
+            {% if cur_user in just_followers %}
+                <button id="subscribe_btn" class="btn" data-url="/user/{{ user.id }}/" data-id="subscribe_btn">Followed</button>
+            {% else %}
+                <button id="subscribe_btn" class="btn" data-url="/user/{{ user.id }}/" data-id="subscribe_btn">Follow</button>
+            {% endif %}
+        </div>
+        <span class="h4 text-dark p-4">{{ request.user.username }}</span>
+        {% if len_posts %}
+            <span class="h4 text-dark p-4">Posts: {{ len_posts }}</span>
         {% else %}
-                <button id="subscribe_btn" data-url="/user/{{ user.id }}/">Follow</button>
+            <span class="h4 text-dark p-4">Posts: 0</span>
         {% endif %}
-        <button id="start_chat">Write a message</button>
+        <span class="h4 text-dark p-4">Followers:<br><span id="followers">{{ followers }}</span></span>
+        <span class="h4 text-dark p-4">Following:<br><span id="following">{{ following }}</span></span>
+    </div>
+    <hr>
+    {% if posts %}
+        {% for i in posts %}
+            <a href="/post/{{ i.id }}"><img src="{{ i.img.url }}" height="100px" width="100px"></a>
+        {% endfor %}
+    {% else %}
+        <span class="h4 text-dark p-5">This user hasn't posted anything yet</span>
+    {% endif %}
 {% endblock %}
