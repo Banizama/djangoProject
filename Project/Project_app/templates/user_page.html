@@ -44,7 +44,7 @@
                 <button id="subscribe_btn" class="btn" data-url="/user/{{ user.id }}/" data-id="subscribe_btn">Follow</button>
             {% endif %}
         </div>
-        <span class="h4 text-dark p-4">{{ request.user.username }}</span>
+        <span class="h4 text-dark p-4">{{ user.username }}</span>
         {% if len_posts %}
             <span class="h4 text-dark p-4">Posts: {{ len_posts }}</span>
         {% else %}
