@@ -1,23 +1,27 @@
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView, RedirectView
-from .forms import RegUserForm, PostForm, CommentForm, LoginForm
+from .forms import RegUserForm, PostForm, CommentForm, LoginForm, SearchForm
 from .models import User, Post, Comment, Follow
-from django.contrib import messages
+import random
 
 
 def home_page(request):
     search_query = request.GET.get('search', None)
     if search_query:
-        users = User.objects.filter(username__icontains=search_query)
+        posts = Post.objects.filter(description__icontains=search_query)
     else:
-        users = User.objects.all()
-    return render(request, 'home.html', context={'users': users})
+        posts = list(Post.objects.all())
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'main_page.html', context={'posts': posts, 'page_obj': page_obj})
 
 
 def registration(request):
@@ -29,7 +33,7 @@ def registration(request):
             user.save()
             follow = Follow(user=user)
             follow.save()
-            return render(request, 'login_page.html')
+            return redirect('login')
     else:
         form = RegUserForm()
     return render(request, 'reg_page.html', context={'form': form})
@@ -90,6 +94,7 @@ def cur_user_page(request):
     follow = Follow.objects.get(user=request.user)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
+        #comments
         if form.is_valid():
             img = form.cleaned_data['img']
             description = form.cleaned_data['description']
@@ -114,6 +119,7 @@ class UserPage(TemplateView):
     template_name = 'user_page.html'
 
     def get_context_data(self, **kwargs):
+        # print(self.request.user.username)
         context = super().get_context_data(**kwargs)
         user = User.objects.get(id=self.kwargs['id'])
         follow = Follow.objects.filter(user=user)
@@ -122,6 +128,7 @@ class UserPage(TemplateView):
             context['followers'] = len(i.followers.all())
             context['just_followers'] = i.followers.all()
         context['user'] = user
+        # print(user)
         context['cur_user'] = self.request.user
         return context
 
