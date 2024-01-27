@@ -15,8 +15,8 @@ function subscribe(){
             })
         })
     }
-    $(document).ready(function(){
-        subscribe()
-    })
+$(document).ready(function(){
+    subscribe()
+})
 
 
