@@ -1,18 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
-    {{ request.user.username }}<br>
-    Posts: {{ len_posts }}<br>
-    Followers: {{ followers }}<br>
-    Following: {{ following }}<br><hr>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
-        <button>Upload</button>
-    </form>
-    {% for i in posts %}
-        <a href="/post/{{ i.id }}"><img src="{{ i.img.url }}" height="50px" width="50px"></a>
-    {% endfor %}
+    <style>
+        .btn {
+             border: none;
+             color: #fff;
+             background-color: #8BC6EC;
+             background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
+             border-radius: 20px;
+             background-size: 100% auto;
+             font-family: inherit;
+             font-size: 17px;
+             padding: 0.6em 1.5em;
+        }
 
+            .btn:hover {
+             background-position: right center;
+             background-size: 200% auto;
+             -webkit-animation: pulse 2s infinite;
+             animation: pulse512 1.5s infinite;
+        }
+
+            @keyframes pulse512 {
+             0% {
+              box-shadow: 0 0 0 0 #05bada66;
+        }
+
+             70% {
+              box-shadow: 0 0 0 10px rgb(218 103 68 / 0%);
+        }
+
+             100% {
+              box-shadow: 0 0 0 0 rgb(218 103 68 / 0%);
+             }
+        }
+    </style>
+    <div class="justify-items-start d-flex p-1">
+        <div>
+            <img src="media/avatars/default_user_img.jpg" height="100px" width="100px" style="border-radius: 50%; border-color: grey; border-style: solid;">
+            <a href="{% url 'logout' %}" class="p-2 btn">Log Out</a>
+        </div>
+        <span class="h4 text-dark p-4">{{ request.user.username }}</span>
+        <span class="h4 text-dark p-4">Posts: {{ len_posts }}</span>
+        <span class="h4 text-dark p-4">Followers: {{ followers }}</span>
+        <span class="h4 text-dark p-4">Following: {{ following }}</span>
+    </div>
+    <hr>
+    {% if posts %}
+        {% for i in posts %}
+            <a href="/post/{{ i.id }}"><img src="{{ i.img.url }}" height="100px" width="100px"></a>
+        {% endfor %}
+    {% else %}
+        <span class="h4 text-dark p-4">You don't have any post, post something</span>
+    {% endif %}
 {% endblock %}
