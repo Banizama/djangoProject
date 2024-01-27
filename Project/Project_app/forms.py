@@ -25,10 +25,10 @@ class LoginForm(AuthenticationForm):
 class RegUserForm(UserCreationForm):
 
     password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'input', 'type':'text',  'placeholder': 'Password'}),
+        widget=forms.PasswordInput(attrs={'class': 'input', 'type': 'password',  'placeholder': 'Password'}),
     )
     password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'input', 'type':'text',  'placeholder': 'Confirm password'}),
+        widget=forms.PasswordInput(attrs={'class': 'input', 'type': 'password',  'placeholder': 'Confirm password'}),
     )
 
     class Meta:
@@ -52,16 +52,13 @@ class RegUserForm(UserCreationForm):
         return email
 
 
-# class MessageForm(forms.ModelForm):
-#     class Meta:
-#         model = Message
-#         fields = ('text',)
-#         widgets = {'text': forms.Textarea(attrs={'id': 'message'})}
-
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('img', 'description')
+        widgets = {
+                   'description': forms.TextInput(attrs={'class': 'input', 'type': 'text',  'placeholder': 'Description'})
+                   }
 
 
 class CommentForm(forms.ModelForm):
