@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form method="GET" class="">
+
+            <input type="text" placeholder="Search..." name="search" >
+            <button type="submit" class="search-btn">Search</button>
+    </form>
+    {% for post in page_obj %}
+        <div>
+            {% if request.user == post.user %}
+                <a href="/cur_user_page" class="h4 text-dark" style="text-decoration: none;"><span>{{ post.user.username }}</span></a><br>
+            {% else %}
+                <a href="/user/{{ post.user.id }}" class="h4 text-dark" style="text-decoration: none;"><span>{{ post.user.username }}</span></a><br>
+            {% endif %}
+            <img src="{{ post.img.url }}" height="700px" width="500px"><br>
+            <span class="text-dark h5 ">{{ post.description }}</span><br>
+            <hr>
+
+        </div>
+    {% endfor %}
+    <div>
+        <style>
+            .not-href{
+               border-radius: 15px;
+               padding: 14px 25px;
+               color: black;
+               background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
+            }
+            .href:link, a:visited {
+               border-radius: 15px;
+               background-color: #8BC6EC;
+               background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
+               color: white;
+               padding: 14px 25px;
+               text-align: center;
+               text-decoration: none;
+               display: inline-block;
+            }
+
+            .href:hover, a:active {
+                 background-position: right center;
+                 background-size: 200% auto;
+                 -webkit-animation: pulse 2s infinite;
+                 animation: pulse512 1.5s infinite;
+            }
+
+                @keyframes pulse512 {
+                 0% {
+                  box-shadow: 0 0 0 0 #05bada66;
+            }
+
+                 70% {
+                  box-shadow: 0 0 0 10px rgb(218 103 68 / 0%);
+            }
+
+                 100% {
+                  box-shadow: 0 0 0 0 rgb(218 103 68 / 0%);
+            }
+            }
+            }
+        </style>
+        <div class="d-flex justify-content-evenly">
+            {% for page in page_obj.paginator.page_range %}
+                {% if page_obj.number == page %}
+                    <span class="not-href h3">{{ page }}</span>
+                {% else %}
+                    <a href="?page={{ page }}" class="href h3">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
