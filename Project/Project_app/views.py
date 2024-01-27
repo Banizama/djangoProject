@@ -2,12 +2,12 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView, ListView, RedirectView
-from .forms import RegUserForm, PostForm, CommentForm, LoginForm, SearchForm
+from .forms import RegUserForm, PostForm, CommentForm, LoginForm
 from .models import User, Post, Comment, Follow
 import random
 
@@ -92,9 +92,17 @@ class PostPage(TemplateView):
 def cur_user_page(request):
     cur_user_post = Post.objects.filter(user=request.user.id)
     follow = Follow.objects.get(user=request.user)
+    return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post,
+                                                  'followers': len(follow.followers.all()),
+                                                  'following': len(follow.following.all()),
+                                                  'len_posts': len(cur_user_post)
+                                                  })
+
+
+def add_post_page(request):
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
-        #comments
+        # comments
         if form.is_valid():
             img = form.cleaned_data['img']
             description = form.cleaned_data['description']
@@ -103,11 +111,7 @@ def cur_user_page(request):
             return redirect('/cur_user_page')
     else:
         form = PostForm()
-    return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post,
-                                                  'followers': len(follow.followers.all()),
-                                                  'following': len(follow.following.all()),
-                                                  'len_posts': len(cur_user_post)
-                                                  })
+    return render(request, 'add_post.html', {'form': form})
 
 
 def logout_user(request):
