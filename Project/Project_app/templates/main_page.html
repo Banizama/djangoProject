@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    <form method="GET" class="">
-
+    <form method="GET">
             <input type="text" placeholder="Search..." name="search" >
             <button type="submit" class="search-btn">Search</button>
     </form>
@@ -12,7 +11,7 @@
             {% else %}
                 <a href="/user/{{ post.user.id }}" class="h4 text-dark" style="text-decoration: none;"><span>{{ post.user.username }}</span></a><br>
             {% endif %}
-            <img src="{{ post.img.url }}" height="700px" width="500px"><br>
+            <a href="/post/{{ post.id }}"><img src="{{ post.img.url }}" height="700px" width="500px"></a><br>
             <span class="text-dark h5 ">{{ post.description }}</span><br>
             <hr>
 
