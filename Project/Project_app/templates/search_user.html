@@ -52,9 +52,14 @@
     </form>
     {% for user in users %}
         {% if request.user == user%}
-           <span class="h5 a"><a class="text-dark" href="{% url 'cur_user_page' %}" style="text-decoration: none;">{{ user.username }}</a></span><br>
-        {% else %}
-            <span class="h5 a" ><a href="user/{{ user.id }}" style="text-decoration: none;" class="text-dark">{{ user.username }}</a></span><br>
-        {% endif %}
+
+            <div class="p-1" style="background-color: #B0C4DE; border-bottom-style: dashed; border-color: black;">
+                 <span class="h5 a"><a class="text-dark" href="{% url 'cur_user_page' %}" style="text-decoration: none;">{{ user.username }}</a></span><br>
+            </div>
+            {% else %}
+            <div class="p-1" style="background-color: #B0C4DE; border-bottom-style: dashed; border-color: black;">
+                <span class="h5 a" ><a href="user/{{ user.id }}" style="text-decoration: none;" class="text-dark">{{ user.username }}</a></span><br>
+            </div>
+            {% endif %}
     {% endfor %}
 {% endblock %}
