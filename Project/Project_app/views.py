@@ -2,14 +2,22 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, FormView, ListView, RedirectView
-from .forms import RegUserForm, PostForm, CommentForm, LoginForm
+from django.views.generic import TemplateView
+
+from .forms import RegUserForm, PostForm, CommentForm, LoginForm, EditUserInfo
 from .models import User, Post, Comment, Follow
-import random
+
+
+# def cur_user_followers(request):
+#     cur_user = request.user
+#     follows = Follow.objects.filter(user=cur_user)
+#     for i in follows:
+#         followers = i.followers
+#     return render(request,'cur_user_followers.html', context = {'followers': followers})
 
 
 def home_page(request):
@@ -17,7 +25,7 @@ def home_page(request):
     if search_query:
         posts = Post.objects.filter(description__icontains=search_query)
     else:
-        posts = list(Post.objects.all())
+        posts = Post.objects.all()
     paginator = Paginator(posts, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -88,15 +96,25 @@ class PostPage(TemplateView):
             resp = render_to_string('resp.html', {'comment': comment})
             return JsonResponse(resp, safe=False)
 
+
 @login_required
 def cur_user_page(request):
     cur_user_post = Post.objects.filter(user=request.user.id)
     follow = Follow.objects.get(user=request.user)
-    return render(request, 'cur_user_page.html', {'form': form, 'posts': cur_user_post,
+    return render(request, 'cur_user_page.html', {'posts': cur_user_post,
                                                   'followers': len(follow.followers.all()),
                                                   'following': len(follow.following.all()),
                                                   'len_posts': len(cur_user_post)
                                                   })
+
+
+def search_users(request):
+    search_query = request.GET.get('search_user', None)
+    if search_query:
+        users = User.objects.filter(username__icontains=search_query)
+    else:
+        users = User.objects.all()
+    return render(request, 'search_user.html', {'users': users})
 
 
 def add_post_page(request):
@@ -108,7 +126,7 @@ def add_post_page(request):
             description = form.cleaned_data['description']
             post = Post(img=img, description=description, user=request.user)
             post.save()
-            return redirect('/cur_user_page')
+            return redirect('cur_user_page')
     else:
         form = PostForm()
     return render(request, 'add_post.html', {'form': form})
@@ -119,20 +137,36 @@ def logout_user(request):
     return redirect('home')
 
 
+def edit_user_info(request):
+    cur_user = request.user
+    if request.method == 'POST':
+        form = EditUserInfo(request.POST, request.FILES)
+        if form.is_valid():
+            cur_user.image = form.cleaned_data['image']
+            cur_user.username = form.cleaned_data['username']
+            cur_user.email = form.cleaned_data['email']
+            cur_user.save()
+            return redirect('cur_user_page')
+    else:
+        form = EditUserInfo(initial={'username': cur_user.username, 'email': cur_user.email, 'image': cur_user.image})
+        return render(request, 'edit_user_info.html', context={'form': form})
+
+
 class UserPage(TemplateView):
     template_name = 'user_page.html'
 
     def get_context_data(self, **kwargs):
-        # print(self.request.user.username)
         context = super().get_context_data(**kwargs)
         user = User.objects.get(id=self.kwargs['id'])
+        posts = Post.objects.filter(user=user)
         follow = Follow.objects.filter(user=user)
         for i in follow:
             context['following'] = len(i.following.all())
             context['followers'] = len(i.followers.all())
             context['just_followers'] = i.followers.all()
         context['user'] = user
-        # print(user)
+        context['posts'] = posts
+        context['len_posts'] = len(posts)
         context['cur_user'] = self.request.user
         return context
 
@@ -152,56 +186,5 @@ class UserPage(TemplateView):
             cur_follow.following.remove(user)
             cur_follow.save()
             return JsonResponse({'follow': 'Follow', 'followers': len(follow.followers.all())}, safe=False)
-
-
-# class StartChatView(TemplateView):
-#     template_name = 'chat.html'
-#
-#     def get(self, request, **kwargs):
-#         print(self.kwargs['id'])
-#         chat = Chat.objects.get(user1=User.objects.get(id=self.kwargs['id']), user2=self.request.user)
-#         if not chat:
-#             chat = Chat.objects.get(user2=User.objects.get(id=self.kwargs['id']), user1=self.request.user)
-#             if not chat:
-#                 chat = Chat(user1=self.request.user, user2=User.objects.get(id=self.kwargs['id']))
-#                 chat.save()
-#             else:
-#                 return chat
-#         else:
-#             return chat
-#         return redirect(f'/chat/{chat.id}')
-
-
-# class ChatView(TemplateView):
-#     template_name = 'chat.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         chat = Chat.objects.get(id=self.kwargs['id'])
-#         cur_user = self.request.user
-#         # if not chat or (chat.user1 != cur_user and chat.user2 != cur_user):
-#         #     return redirect('/')
-#
-#         talker = chat.user2 if chat.user1 == cur_user else chat.user1
-#         # context['title'] = f'Chat with {talker}'
-#         context['talker'] = talker
-#         context['cur_user'] = cur_user
-#         context['chat'] = chat
-#         context['messages'] = chat.messages.filter(chat=chat.id)
-#         context['form'] = MessageForm()
-#         return context
-#
-#     def post(self, request, **kwargs):
-#         data = request.POST
-#         form = MessageForm(request.POST)
-#         if form.is_valid():
-#             chat = Chat.objects.get(id=kwargs['id'])
-#             message = Message(text=data['text'], user=self.request.user)
-#             chat.messages.add(message)
-#             chat.save()
-#             response = message.text
-#         else:
-#             response = 'ERROR'
-#         return JsonResponse(response, safe=False)
 
 
