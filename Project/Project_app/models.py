@@ -11,7 +11,7 @@ class Abstract(models.Model):
 
 
 class User(AbstractUser):
-    image = models.ImageField(upload_to='avatars', default=None)
+    image = models.ImageField(upload_to='avatars', default='avatars/default_user_img.jpg')
 
 
 class Follow(models.Model):
