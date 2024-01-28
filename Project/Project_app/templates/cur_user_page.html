@@ -36,8 +36,9 @@
     </style>
     <div class="justify-items-start d-flex p-1">
         <div>
-            <img src="media/avatars/default_user_img.jpg" height="100px" width="100px" style="border-radius: 50%; border-color: grey; border-style: solid;">
-            <a href="{% url 'logout' %}" class="p-2 btn">Log Out</a>
+                <img src="{{ request.user.image.url }}" height="100px" width="100px" style="border-radius: 50%; border-color: grey; border-style: solid;">
+            <a href="{% url 'logout' %}" class="p-2 m-1 btn">Log Out</a>
+            <a href="{% url 'edit_user_info' %}" class="p-2 m-1 btn">Edit Info</a>
         </div>
         <span class="h4 text-dark p-4">{{ request.user.username }}</span>
         <span class="h4 text-dark p-4">Posts: {{ len_posts }}</span>
