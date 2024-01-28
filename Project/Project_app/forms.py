@@ -22,6 +22,16 @@ class LoginForm(AuthenticationForm):
         self.fields['password'].widget.attrs['placeholder'] = 'Password'
 
 
+class EditUserInfo(forms.Form):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'input', 'type': 'text',  'placeholder': 'Username',}),
+    )
+    email = forms.CharField(
+        widget=forms.EmailInput(attrs={'class': 'input', 'type': 'email',  'placeholder': 'Email'}),
+    )
+    image = forms.ImageField()
+
+
 class RegUserForm(UserCreationForm):
 
     password1 = forms.CharField(
@@ -65,4 +75,5 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('text',)
-        widgets = {'text': forms.TextInput(attrs={'id': 'comment'})}
+        widgets = {'text': forms.TextInput(attrs={'id': 'comment', 'type': 'text',  'placeholder': 'Comment'})}
+
