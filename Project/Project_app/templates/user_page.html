@@ -45,11 +45,7 @@
             {% endif %}
         </div>
         <span class="h4 text-dark p-4">{{ user.username }}</span>
-        {% if len_posts %}
-            <span class="h4 text-dark p-4">Posts: {{ len_posts }}</span>
-        {% else %}
-            <span class="h4 text-dark p-4">Posts: 0</span>
-        {% endif %}
+        <span class="h4 text-dark p-4">Posts: {{ len_posts }}</span>
         <span class="h4 text-dark p-4">Followers:<br><span id="followers">{{ followers }}</span></span>
         <span class="h4 text-dark p-4">Following:<br><span id="following">{{ following }}</span></span>
     </div>
