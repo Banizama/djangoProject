@@ -1,24 +1,106 @@
-{% extends 'base.html' %}
-{% block content %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="/static/scripts/like.js"></script>
+    <script src="/static/scripts/comment.js"></script>
 
+<script>
+$(document).ready(function(){
+  $("#comments_bar").click(function(){
+    $("#comments").toggle();
+  });
+});
+</script>
+</head>
+        <style>
+        .btn {
+             border: none;
+             color: #fff;
+             background-color: #8BC6EC;
+             background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
+             border-radius: 20px;
+             background-size: 100% auto;
+             font-family: inherit;
+             font-size: 20px;
+             padding: 8px;
+        }
 
-        <img src="{{ post.img.url }}" height="200px" width="100px">
+            .btn:hover {
+             background-position: right center;
+             background-size: 200% auto;
+             -webkit-animation: pulse 2s infinite;
+             animation: pulse512 1.5s infinite;
+        }
+
+            @keyframes pulse512 {
+             0% {
+              box-shadow: 0 0 0 0 #05bada66;
+        }
+
+             70% {
+              box-shadow: 0 0 0 10px rgb(218 103 68 / 0%);
+        }
+
+             100% {
+              box-shadow: 0 0 0 0 rgb(218 103 68 / 0%);
+             }
+        }
+    </style>
+<body class="container-fluid justify-content-center" style="background-color: #8BC6EC;
+        background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%)">
+        <header class="col-5 bg-dark mx-auto" style="height: 90px; position: relative; border-bottom-style: solid;
+            border-bottom-color: #A9A9A9; ">
+            <div class="d-flex justify-content-between ">
+                <div class="text-white my-3 m-4 ">
+                    <a class='col-2 p-3' style="height: 100px;" href="{% url 'cur_user_page' %}"><img src="/media/icons/circle-user.png" height="50px;" width="50px;"></a>
+                </div>
+                <div class="text-white my-3 m-4">
+                    <a class='col-2 p-3' style="height: 100px;" href="{% url 'home' %}"><img src="/media/icons/home.png" height="50px;" width="50px;"></a>
+                </div>
+                <div class="text-white my-3 m-4">
+                    <a class='col-2 p-3' style="height: 100px;" href="{% url 'users' %}"><img src="/media/icons/search.png" height="50px;" width="50px;"></a>
+                </div>
+                <div class="text-white my-3 m-4">
+                    <a class='col-2 p-3' style="height: 100px;" href="{% url 'add_post' %}"><img src="/media/icons/plus.png" height="50px;" width="50px;" style="border-style: solid; border-color: white; padding: 3px; border-radius: 5px;"></a>
+                </div>
+            </div>
+        </header>
+        <div class="col-5 mx-auto" style="position: relative; background-color: #E6E6FA; text-align: center;" >
+            <div style="background-color: #B0C4DE;" class="p-2">
+                <img src="/media/avatars/default_user_img.jpg" height="50px" width="50px" style="border-radius: 50%;">
+                    {% if request.user == post.user %}
+                        <a href="{% url 'cur_user_page' %}" class="h4 text-dark" style="text-decoration: none;"><span>{{ post.user.username }}</span></a><br>
+                    {% else %}
+                        <a href="/user/{{ post.user.id }}" class="h4 text-dark" style="text-decoration: none;"><span>{{ post.user.username }}</span></a><br>
+                     <hr>
+                    {% endif %}
+            </div>
+
+                <img src="{{ post.img.url }}" height="800px" width="700px" class="p-2"><br>
         {{ post.description }}<br>
         {% csrf_token %}
         {% if cur_user in just_likes%}
-            <button id="like_btn" data-id="like_btn" data-url="/post/{{ post.id }}/">Liked</button><span> Likes: </span><span id="likes">{{ likes }}</span>
+            <button id="like_btn" data-id="like_btn" data-url="/post/{{ post.id }}/" class="btn">Liked</button><span> Likes: </span><span id="likes">{{ likes }}</span>
         {% else %}
-            <button id="like_btn" data-id="like_btn" data-url="/post/{{ post.id }}/">Like</button><span> Likes: </span><span id="likes">{{ likes }}</span>
+            <button id="like_btn" data-id="like_btn" data-url="/post/{{ post.id }}/" class="btn">Like</button><span> Likes: </span><span id="likes">{{ likes }}</span>
         {% endif %}
         <hr>
+            <div style="background-color: #B0C4DE;" class="w-100 p-2">
                 {% csrf_token %}
-                {{ form }}
-                <button type="submit" id="comment_btn" data-url="/post/{{ post.id }}/">Comment</button>
-            {% for i in comments %}
-                <div id="comments">
-                    <span>{{ i.text }}</span><br>
-                </div>
-            {% endfor %}
+                {{ form.text }}
+                <button type="submit" id="comment_btn" data-url="/post/{{ post.id }}/" class="btn">Leave comment</button><br>
+            </div>
+            <button id="comments_bar" data-url="/post/{{ post.id }}/" class="btn">Comments bellow</button>
+            <div id="comments">
+                {% for i in comments %}
+                <span id="username" class="h4 text-dark">{{ i.user.username }}:</span><span class="h5 text-dark">{{ i.text }}</span><br>
+                {% endfor %}
+            </div>
+        </div>
 
-{% endblock %}
+</body>
+</html>
